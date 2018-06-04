@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+{% block head %}
+    {{ super() }}
+{% endblock %}
+{% block content %}
+<div class="row">
+    {% with messages = get_flashed_messages() %}
+        {% for message in messages %}
+            {% if message %}
+                <div class="alert alert-warning" role="alert">{{ message }}</div>
+            {% endif %}
+        {% endfor %}
+    {% endwith %}
+    {% if form and form.errors %}
+        {% for key, error in form.errors.items() %}
+            <div class="alert alert-warning" role="alert">{{ error }}</div>
+        {% endfor %}
+    {% endif %}
+</div>
+<div id="page-wrapper" class="gray-bg dashbard-1">
+    <div class="row border-bottom">
+        <nav class="navbar navbar-static-top" role="navigation" style="margin-bottom: 0">
+            <ul class="nav navbar-top-links navbar-right">
+                <li>
+                    <span class="m-r-sm text-muted welcome-message">问题管理系统</span>
+                </li>
+                <li>
+                    <a href="login.html">
+                         注销
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+    <div class="row gua-page todo-edit border-bottom white-bg dashboard-header">
+        <div class="col-sm-3">
+            <div class="center">
+                <h1>问题集</h1>
+                <!-- 注意这里 的 url_for 也是需要加上蓝图名字前缀的 -->
+                <!-- action /todo/add-->
+                <form action='{{ url_for('web.add_question')}}' method="post">
+                    <input type="text" placeholder="Add question" name="question">
+                    <input type="text" placeholder="Add answer" name="answer">
+                    <input class="pure-button pure-button-primary" type="submit" value="Add">
+                </form>
+            </div>
+
+            <table class="todo-table pure-table pure-table-horizontal pure-table-striped">
+                <thead>
+                    <tr>
+                        <th>智障问题</th>
+                        <th>更智障的回答</th>
+                        <th>创建时间</th>
+                        <th>删除</th>
+                        <th>更改</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for q in questions %}
+                    <tr>
+                        <td>{{ q.question }}</td>
+                        <td>{{ q.answer }}</td>
+                        <td>{{ q.create_time }}</td>
+                        <!-- url_for 可以传递参数，先匹配动态路由，如果动态路由匹配失败则变成 query 参数 -->
+                        <td><a href={{ url_for('web.delete_question', question_id=q.id) }}>删除</a></td>
+                        <td><a href={{ url_for('web.change_question', question_id=q.id) }}>编辑</a></td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
