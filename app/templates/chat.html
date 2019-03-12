@@ -106,41 +106,63 @@
                                         </div>
                                     </div>
                                     <form action="http://baidu.com"  target="" id="uploadForm" enctype="multipart/form-data">
-                                        <input id="file" type="file" name="file" />
+                                        <!--<input id="file" type="file" name="file" />-->
+                                        <input type="file" id="file-input" name="fileContent">
                                         <input type="submit" name="submit" id="submit" value="upload" />
                                     </form>
                                 </div>
                             </div>
                     </div>
-
                 </div>
-
-
             </div>
         </div>
     </div>
 </div>
 <script>
-    document.getElementById("down").scrollIntoView();
-    $.ajax({
-        url: '/upload',
-        type: 'POST',
-        cache: false,
-        data: new FormData($('#uploadForm')[0]),
-        processData: false,
-        contentType: false
-    }).done(function(res) {}).fail(function(res) {});
-
     var formData = new FormData();
-    formData.append('file', $('#file')[0].files[0]);
+    var files = $("#file-input").files;
+    formData.append("file", files[0]);
     $.ajax({
-        url: '/upload',
+        url: '/upload/order',
         type: 'POST',
-        cache: false,
         data: formData,
-        processData: false,
-        contentType: false
-    }).done(function(res) {
-    }).fail(function(res) {});
+        processData: false, //  告诉jquery不要处理发送的数据
+        contentType: false // 告诉jquery不要设置content-Type请求头
+    }).done(function (res) {
+    }).fail(function (res) {
+        console.log("失败");
+    });
+    document.getElementById("down").scrollIntoView();
+
+    var ajax = function(request) {
+    var r = new XMLHttpRequest();
+    r.open(request.method, request.url, true);
+    if (request.contentType !== undefined) {
+        r.setRequestHeader('Content-Type', request.contentType)
+    }
+    r.onreadystatechange = function(event) {
+        if(r.readyState === 4) {
+            request.callback(r.response)
+        }
+    }
+    if (request.method === 'GET') {
+        r.send()
+    } else {
+        r.send(request.data)
+    }
+};
+var blogNew = function(form) {
+    var data = JSON.stringify(form);
+    var request = {
+        method: 'POST',
+        url: '/api/blog/add',
+        data: data,
+        contentType: 'application/json',
+        callback: function(response) {
+            var res = JSON.parse(response)
+        }
+    };
+    ajax(request)
+};
 </script>
 {% endblock %}

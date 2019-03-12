@@ -6,10 +6,21 @@ from app.libs import jieba
 from app.libs.lcs import LCS
 from app.libs.ld import LD
 
-def nlp(question, questions):
+"""
+最后按 “标准差*平均值 &lt; 筛选阈值” 的条件按相关度由高至低添加，并返回最终结果  问题集的排序
+
+向一个问题集中添加子问题
+如果该问题集中已经有该子问题则按概率随机决定添加
+概率为，其中k为常熟，x为已有的重复问题个数
+添加成功时该问题集中所有非预设问题的”年龄“ + 1  问题集中的
+”年龄“》预设值时该问题会被从问题集中删除
+"""
+def nlp(question, questions, answers):
 
     word_qs = []
     participle_qs = []
+
+    _qa = dict(zip(questions, answers))
 
     for i in range(len(questions)):
         word_qs.append(list(questions[i]))
@@ -27,7 +38,7 @@ def nlp(question, questions):
 
     lsort = sorted(ll.items(), key=lambda ll:ll[1])[-1]
 
-    return lsort[0]
+    return _qa[lsort[0]]
 
 def getLCSRel(a, b):
     return sum((x*x for x in LCS(a, b))) / (len(a) * len(b))

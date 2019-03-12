@@ -1,7 +1,8 @@
-from flask import render_template, request, redirect, url_for
-from flask_login import login_required
+import json
 
-from app.libs.helper import get_all_questions
+from flask import request
+
+from app.libs.helper import get_all_questions, get_all_answers
 from app.libs.nlp import nlp
 from app.models.question_and_answer import Questions_answers
 from . import web
@@ -15,20 +16,16 @@ messages = [
 
 re_messages = []
 
-@web.route('/')
-@login_required
-def index():
-    return render_template('chat.html', messages=messages)
-
 @web.route('/send_message', methods=['POST'])
-@login_required
 def send_message():
     form = request.form
     form.index = 'send'
     questions = Questions_answers.query.filter_by(status=1).all()
     questions = get_all_questions(questions)
+    answers = Questions_answers.query.filter_by(status=1).all()
+    answers = get_all_answers(answers)
     question = form['message']
-    r_question = nlp(question, questions)
+    r_question = nlp(question, questions, answers)
     re_message = {
         'message': r_question,
         'index': 're'
@@ -45,7 +42,7 @@ def send_message():
                 messages.append(m)
     if type(messages[-1]) != dict:
         messages.append(re_message)
-    return redirect(url_for('web.index'))
+    return json.dumps(re_message)
 
 # @web.route('/revie_message', methods=['POST', 'GET'])
 # @login_required

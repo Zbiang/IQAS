@@ -1,3 +1,5 @@
+import json
+
 from flask import render_template, request, url_for, redirect, flash
 from flask_login import login_required
 
@@ -13,7 +15,6 @@ def questions_answers():
     return render_template('questions_answers.html', questions=questions)
 
 @web.route('/questions_answers/add', methods=['GET', 'POST'])
-@login_required
 def add_question():
     form = Add_change_question(request.form)
     if request.method == 'POST' and form.validate():
@@ -21,10 +22,9 @@ def add_question():
             question = Questions_answers()
             question.set_attrs(form.data)
             db.session.add(question)
-    return redirect(url_for('web.questions_answers'))
+    return "success"
 
 @web.route('/questions_answers/delete/<question_id>', methods=['GET', 'POST'])
-@login_required
 def delete_question(question_id):
     question = Questions_answers.query.filter_by(id=question_id).first()
     if not question:
@@ -34,6 +34,12 @@ def delete_question(question_id):
     return redirect(url_for('web.questions_answers'))
 
 @web.route('/questions_answers/change', methods=['GET', 'POST'])
-@login_required
 def change_question():
     return redirect(url_for('web.questions_answers'))
+
+"""
+前端的ajax向后端发送前端接受到的数据文件
+后端对数据文件的内容加以整理，导入数据库，
+不用再传给前端，前端直接展示数据库的内容即
+可
+"""
